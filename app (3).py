@@ -332,8 +332,7 @@ def load_database_file(file):
             'petitioner': 'المدعي',
             'respondent': 'المدعى_عليه',
             'jurisdiction': 'الولاية_القضائية',
-            'majority_opinion_writer': 'كاتب_الرأي_الأغلبية',
-            'split_vote': 'انقسام_التصويت'
+            'majority_opinion_writer': 'كاتب_الرأي_الأغلبية'
         }
         
         available_columns = {}
@@ -532,10 +531,24 @@ def train_multiple_models(df, test_size=0.2):
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     
-    # تقسيم البيانات
-    X_train, X_test, y_train, y_test = train_test_split(
-        X_scaled, y, test_size=test_size, random_state=42, stratify=y
-    )
+    # FIXED: التحقق من إمكانية استخدام stratify
+    # حساب عدد العينات في كل فئة
+    class_counts = Counter(y)
+    min_class_count = min(class_counts.values())
+    
+    # FIXED: تقسيم البيانات بشكل ذكي
+    if min_class_count > 1 and len(class_counts) > 1:
+        # إذا كان هناك على الأقل عينتان في كل فئة، استخدم stratify
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_scaled, y, test_size=test_size, random_state=42, stratify=y
+        )
+        st.info(f"✅ تم استخدام التقسيم المتوازن (stratify) - عدد الفئات: {len(class_counts)}")
+    else:
+        # إذا كانت هناك فئة بعينة واحدة فقط، لا تستخدم stratify
+        st.warning("⚠️ توجد فئات نادرة في البيانات. تم تعطيل خاصية التقسيم المتوازن (stratify) لتجنب الأخطاء.")
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_scaled, y, test_size=test_size, random_state=42
+        )
     
     # ========== 1. Decision Tree ==========
     st.info("🌳 تدريب Decision Tree...")
