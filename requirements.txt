@@ -6,6 +6,7 @@ scikit-learn
 xgboost
 matplotlib
 wordcloud
-arabic reshaper
-python bidi
+arabic-reshaper
+python-bidi
 textblob
+shap
