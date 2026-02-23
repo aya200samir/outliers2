@@ -5,3 +5,7 @@ plotly
 scikit-learn
 xgboost
 matplotlib
+wordcloud
+arabic reshaper
+python bidi
+textblob
